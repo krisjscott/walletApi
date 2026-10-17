@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -24,7 +25,12 @@ public class Wallet {
     private Long version;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
+    @PrePersist
+    public void prePersist()
+    {
+        this.createdAt = LocalDateTime.now();
+    }
 
 }
