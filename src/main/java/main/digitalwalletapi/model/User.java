@@ -25,7 +25,7 @@ public class User {
     @Column(name = "role")
     private Role role;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "created_at")
