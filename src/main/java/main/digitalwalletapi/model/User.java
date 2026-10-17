@@ -2,9 +2,8 @@ package main.digitalwalletapi.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
-import java.util.Date;
+
 
 @Entity
 @Table(name = "users")
@@ -33,11 +32,7 @@ public class User {
 
     @PrePersist
     public void prePersist()
-        {
-        this.createdAt = LocalDateTime.now();
-        }
-
-
-
+    {this.createdAt = LocalDateTime.now();
+    }
 
 }
