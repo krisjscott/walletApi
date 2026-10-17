@@ -1,14 +1,15 @@
 package main.digitalwalletapi.model;
 
 import jakarta.persistence.*;
-import org.hibernate.resource.transaction.spi.TransactionStatus;
+import lombok.Getter;
 
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-public class transaction {
+@Getter
+public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,18 +17,18 @@ public class transaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "from_wallet_id")
-    private wallet fromWallet;
+    private Wallet fromWallet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_wallet_id", nullable = false)
-    private wallet toWallet;
+    private Wallet toWallet;
 
     @Column(name = "amount")
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TransactionType type;
+        private TransactionType type;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

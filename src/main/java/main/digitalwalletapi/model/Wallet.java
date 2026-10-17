@@ -1,22 +1,24 @@
 package main.digitalwalletapi.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
-public class wallet {
+@Getter
+public class Wallet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private user user;
+    @OneToOne(fetch = FetchType.LAZY)
+    private User user;
 
-    @Column(name = "balance")
-    private BigDecimal balance;
+    @Column(name = "balance", precision = 14, scale = 2, nullable = false)
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @Version
     private Long version;
