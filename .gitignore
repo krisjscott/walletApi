@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local wallet database
+/data/
+
+# Local debugging exercise notes
+/ISSUES.md
