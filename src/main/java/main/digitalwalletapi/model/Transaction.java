@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "wallet_transaction")
+@Table(name = "wallet_transaction", uniqueConstraints = @UniqueConstraint(columnNames = {"from_wallet_id", "idempotency_key"}))
 public class Transaction {
 
     @Id
@@ -29,17 +29,28 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-        private TransactionType type;
+    private TransactionType type;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionStatus status;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "idempotency_key", nullable = false, length = 100)
     private String idempotencyKey;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    protected Transaction() {}
+
+    public Transaction(Wallet fromWallet, Wallet toWallet, BigDecimal amount, String idempotencyKey) {
+        this.fromWallet = fromWallet;
+        this.toWallet = toWallet;
+        this.amount = amount;
+        this.idempotencyKey = idempotencyKey;
+        this.type = TransactionType.TRANSFER;
+        this.status = TransactionStatus.SUCCESS;
+    }
 
     @PrePersist
     public void prePersist()

@@ -30,6 +30,15 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    protected User() {}
+
+    public User(String fullName, String email, String password) {
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+        this.role = Role.USER;
+    }
+
     @PrePersist
     public void prePersist()
     {this.createdAt = LocalDateTime.now();
