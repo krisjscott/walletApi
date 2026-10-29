@@ -37,16 +37,17 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
-        User user = users.findByEmail(normalize(request.email())).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
-        if (!new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().matches(request.password().trim(),user.getPassword()))
+        User user = users.findByEmail(normalize(request.email())).orElseThrow(()
+                -> new BadCredentialsException("Invalid credentials"));
+        if (!passwords.matches(request.password(), user.getPassword()))
             throw new BadCredentialsException("Invalid credentials");
         Wallet wallet = wallets.findByUserEmail(user.getEmail()).orElseThrow(() -> new IllegalStateException("User has no wallet"));
-        return response(user,wallet);
+        return response(user, wallet);
     }
 
     private AuthResponse response(User user,Wallet wallet) {
         return new AuthResponse(jwt.generate(user.getEmail()),"Bearer",
-                jwt.expiresIn() / 1000,user.getId(),wallet.getId());
+                jwt.expiresIn() ,user.getId(),wallet.getId());
     }
 
     private String normalize(String email) {
