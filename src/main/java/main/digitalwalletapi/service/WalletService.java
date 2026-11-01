@@ -8,8 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 @Service
 public class WalletService {
-    @Autowired
-    private WalletRepository wallets;
+
+    private final WalletRepository wallets;
+
+    public WalletService(WalletRepository wallets) {
+        this.wallets = wallets;
+    }
+
     public Wallet requireWallet(String email) {
         return wallets.findByUserEmail(email).orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
     }
