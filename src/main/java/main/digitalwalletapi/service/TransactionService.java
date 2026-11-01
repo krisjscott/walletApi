@@ -12,9 +12,11 @@ public class TransactionService {
     private final TransactionRepository transactions;
     @Transactional(readOnly = true)
     public Page<TransactionResponse> history(String email, int page, int size) {
-        if (page < 0 || size < 1 || size > 100) throw new IllegalArgumentException("Page must be nonnegative and size between 1 and 100");
+        if (page < 0 || size < 1 || size > 100)
+            throw new IllegalArgumentException("Page must be nonnegative and size between 1 and 100");
+
         Long walletId = walletService.requireWallet(email).getId();
-        return transactions.findByFromWalletId(walletId,
-            PageRequest.of(Math.max(0, page - 1), size, Sort.by(Sort.Direction.ASC, "createdAt", "id"))).map(TransactionResponse::from);
+        return transactions.findByWalletId(walletId,
+            PageRequest.of(page == 0 ? 0:Math.max(1,page), size, Sort.by(Sort.Direction.DESC, "createdAt", "id"))).map(TransactionResponse::from);
     }
 }

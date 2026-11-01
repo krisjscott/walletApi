@@ -26,14 +26,15 @@ public class TransferService {
         var existing = transactions.findByFromWalletIdAndIdempotencyKey(senderId, request.idempotencyKey());
         if (existing.isPresent()) {
             Transaction previous = existing.get();
-            if (!previous.getToWallet().getId().equals(recipientId) || !previous.getAmount().equals(request.amount())) {
+            if (!previous.getToWallet().getId().equals(recipientId) || !(previous.getAmount().compareTo(request.amount()) ==0)) {
                 throw new IdempotencyConflictException("Idempotency key was already used for a different transfer");
             }
             return TransactionResponse.from(previous);
         }
         sender.debit(request.amount());
         recipient.credit(request.amount());
-        return TransactionResponse.from(transactions.saveAndFlush(new Transaction(sender, recipient, request.amount(), request.idempotencyKey())));
+        return TransactionResponse.from(transactions.saveAndFlush(new Transaction(sender, recipient, request.amount(),
+                request.idempotencyKey())));
     }
     private Wallet lock(Long id) {
         return wallets.findLockedById(id).orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));

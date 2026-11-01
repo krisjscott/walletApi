@@ -7,6 +7,6 @@ public record TransactionHistoryResponse(List<TransactionResponse> content, int 
                                          long totalElements, int totalPages) {
     public static TransactionHistoryResponse from(Page<TransactionResponse> transactions) {
         return new TransactionHistoryResponse(transactions.getContent(), transactions.getNumber(),
-            transactions.getSize(), transactions.getNumberOfElements(), transactions.getTotalPages());
+            transactions.getSize(), transactions.getTotalElements(), transactions.getTotalPages());
     }
 }
