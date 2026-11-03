@@ -19,17 +19,17 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwt, CustomUserDetailsService users) throws Exception {
         return http.csrf(csrf -> csrf.disable()).sessionManagement(session
-                -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(auth
-                -> auth.requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll().anyRequest().authenticated())
+                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(auth
+                        -> auth.requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll().anyRequest().authenticated())
                 .exceptionHandling(errors -> errors.authenticationEntryPoint((request, response, e)
                         -> {
-            response.setStatus(401);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"status\":401,\"message\":\"Authentication required\"}");
-        }).accessDeniedHandler((request, response, e) -> {
-            response.setStatus(403);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"status\":403,\"message\":\"Access denied\"}");
-        })).addFilterBefore(new JwtAuthFilter(jwt, users), UsernamePasswordAuthenticationFilter.class).build();
+                    response.setStatus(401);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"status\":401,\"message\":\"Authentication required\"}");
+                }).accessDeniedHandler((request, response, e) -> {
+                    response.setStatus(403);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"status\":403,\"message\":\"Access denied\"}");
+                })).addFilterBefore(new JwtAuthFilter(jwt, users), UsernamePasswordAuthenticationFilter.class).build();
     }
 }

@@ -108,23 +108,28 @@ In financial systems, clients frequently retry network requests when experiencin
 - **Balance Limits**: Wallets enforce a maximum balance limit of `999,999,999,999.99` (12 integer digits and 2 decimal places), matching the database schema `DECIMAL(14, 2)`.
 - **Overdraft Protection**: Any transfer attempt exceeding the available balance raises `InsufficientBalanceException`, rolling back all changes within the transaction.
 
-### 4. Bidirectional Transaction Ledger & Pagination
+### 4. Bidirectional Transaction Ledger & Optimized Pagination
 
 Transaction history (`/api/transaction`) retrieves both incoming and outgoing payments for the authenticated user's wallet:
-- Query: `SELECT t FROM Transaction t WHERE t.fromWallet.id = :id OR t.toWallet.id = :id`
-- **Sorting**: Consistent descending sort order: `createdAt DESC, id DESC`, ensuring the latest transactions are always presented first.
+- **Query & Performance**: `SELECT t FROM Transaction t WHERE t.fromWallet.id = :id OR t.toWallet.id = :id` equipped with `@EntityGraph(attributePaths = {"fromWallet", "toWallet"})` to eagerly fetch wallet associations in a single query, preventing N+1 query overhead.
+- **Sorting**: Deterministic descending sort order: `createdAt DESC, id DESC`, ensuring the latest transactions are always presented first.
 - **Paging Metadata**: Responses include `page`, `size`, `totalElements` (total count across all pages), and `totalPages`.
 
 ### 5. Centralized Error Handling
 
-All controller and domain exceptions are intercepted by `GlobalExceptionHandler` to produce consistent JSON error payloads:
+All controller, validation, and runtime exceptions are intercepted by `GlobalExceptionHandler` to produce consistent JSON error payloads (`ErrorResponse`):
 ```json
 {
-  "timestamp": "2026-11-02T15:30:00.000Z",
+  "timestamp": "2026-11-03T07:30:00.000Z",
   "status": 400,
   "message": "amount: must be greater than or equal to 0.01"
 }
 ```
+Standardized error mapping covers:
+- **Validation & Type Mismatches (HTTP 400)**: Catches invalid JSON bodies, parameter conversion failures (e.g., non-numeric pagination), negative or oversized amounts.
+- **Authentication & Conflicts (HTTP 401 & 409)**: Catches bad credentials, expired tokens, duplicate email registrations, and idempotency key conflicts.
+- **Method Not Allowed (HTTP 405)**: Rejects unsupported HTTP verbs across API routes.
+- **Internal Server Failures (HTTP 500)**: Intercepts all unexpected runtime exceptions with a sanitized error message to prevent leaking internal stack traces.
 
 ---
 
@@ -215,7 +220,7 @@ Transfers money from the authenticated user's wallet to a recipient wallet.
   "amount": 25.50,
   "type": "TRANSFER",
   "status": "SUCCESS",
-  "createdAt": "2026-11-02T15:30:00"
+  "createdAt": "2026-11-02T15:30:00Z"
 }
 ```
 
@@ -239,7 +244,7 @@ Returns a paginated list of all incoming and outgoing transactions for the authe
       "amount": 25.50,
       "type": "TRANSFER",
       "status": "SUCCESS",
-      "createdAt": "2026-11-02T15:30:00"
+      "createdAt": "2026-11-02T15:30:00Z"
     }
   ],
   "page": 0,
@@ -257,12 +262,13 @@ Returns a paginated list of all incoming and outgoing transactions for the authe
 | --- | --- | --- |
 | `200 OK` | Success | Successful login, balance lookup, transfer, or history query |
 | `201 Created` | Created | Successful user registration and wallet creation |
-| `400 Bad Request` | Validation Failure | Invalid request body, negative amount, fractional cents beyond 2 decimal places, self-transfer, or insufficient balance |
+| `400 Bad Request` | Validation Failure | Invalid request body, malformed JSON, query parameter type mismatch, negative amount, fractional cents beyond 2 decimal places, self-transfer, or insufficient balance |
 | `401 Unauthorized` | Auth Failure | Missing, invalid, expired bearer token, or wrong login credentials |
 | `403 Forbidden` | Access Denied | Authenticated principal lacks permission |
 | `404 Not Found` | Resource Missing | Recipient wallet does not exist |
+| `405 Method Not Allowed` | Method Prohibited | Request sent with an unsupported HTTP verb (e.g. `POST /api/wallet`) |
 | `409 Conflict` | State Conflict | Duplicate email registration, reused idempotency key with conflicting payload, or concurrent row locking failure |
-| `500 Internal Error` | Server Fault | Unexpected infrastructure failure |
+| `500 Internal Error` | Server Fault | Unexpected internal runtime failure (generic fallback returning sanitized message) |
 
 ---
 
