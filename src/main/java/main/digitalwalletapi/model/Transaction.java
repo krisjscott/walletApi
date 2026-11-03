@@ -5,7 +5,7 @@ import lombok.Getter;
 
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -39,7 +39,7 @@ public class Transaction {
     private String idempotencyKey;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     protected Transaction() {}
 
@@ -55,7 +55,7 @@ public class Transaction {
     @PrePersist
     public void prePersist()
     {
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
     }
 
 }

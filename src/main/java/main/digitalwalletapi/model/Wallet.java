@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -25,11 +25,20 @@ public class Wallet {
     private Long version;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    protected Wallet() {}
+    protected Wallet() {
+    }
 
-    public Wallet(User user) { this.user = user; }
+    public Wallet(User user) {
+        this.user = user;
+    }
+
+    private static void requirePositive(BigDecimal amount) {
+        if (amount == null || amount.signum() <= 0 || amount.scale() > 2) {
+            throw new IllegalArgumentException("Amount must be positive with at most two decimal places");
+        }
+    }
 
     public void debit(BigDecimal amount) {
         requirePositive(amount);
@@ -47,16 +56,9 @@ public class Wallet {
         balance = balance.add(amount);
     }
 
-    private static void requirePositive(BigDecimal amount) {
-        if (amount == null || amount.signum() <= 0 || amount.scale() > 2) {
-            throw new IllegalArgumentException("Amount must be positive with at most two decimal places");
-        }
-    }
-
     @PrePersist
-    public void prePersist()
-    {
-        this.createdAt = LocalDateTime.now();
+    public void prePersist() {
+        this.createdAt = Instant.now();
     }
 
 }

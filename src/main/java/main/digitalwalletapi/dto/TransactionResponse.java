@@ -1,9 +1,9 @@
 package main.digitalwalletapi.dto;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import main.digitalwalletapi.model.*;
 public record TransactionResponse(Long id, Long fromWalletId, Long toWalletId, BigDecimal amount,
-        TransactionType type, TransactionStatus status, LocalDateTime createdAt) {
+        TransactionType type, TransactionStatus status, Instant createdAt) {
     public static TransactionResponse from(Transaction transaction) {
         return new TransactionResponse(transaction.getId(),
             transaction.getFromWallet() == null ? null : transaction.getFromWallet().getId(),

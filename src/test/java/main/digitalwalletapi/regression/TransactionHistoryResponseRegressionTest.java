@@ -1,7 +1,7 @@
 package main.digitalwalletapi.regression;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import main.digitalwalletapi.dto.TransactionHistoryResponse;
 import main.digitalwalletapi.dto.TransactionResponse;
@@ -29,6 +29,6 @@ class TransactionHistoryResponseRegressionTest {
 
     private TransactionResponse payment(Long id) {
         return new TransactionResponse(id, 1L, 2L, BigDecimal.ONE,
-            TransactionType.TRANSFER, TransactionStatus.SUCCESS, LocalDateTime.of(2025, 1, 1, 12, 0));
+            TransactionType.TRANSFER, TransactionStatus.SUCCESS, Instant.parse("2025-01-01T12:00:00Z"));
     }
 }

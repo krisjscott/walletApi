@@ -1,7 +1,8 @@
 package main.digitalwalletapi.regression;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import main.digitalwalletapi.dto.AuthResponse;
@@ -111,7 +112,7 @@ class TransferHistoryIssueRegressionTest {
         // Set distinct persisted dates so sorting tests do not depend on clock resolution or sleeps.
         for (int i = 0; i < payments.size(); i++) {
             jdbc.update("update wallet_transaction set created_at = ? where id = ?",
-                LocalDateTime.of(2025, 1, 1, 12, 0).plusDays(i), payments.get(i).id());
+                Instant.parse("2025-01-01T12:00:00Z").plus(i, ChronoUnit.DAYS), payments.get(i).id());
         }
         return payments;
     }
