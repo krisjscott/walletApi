@@ -17,6 +17,6 @@ public class TransactionService {
 
         Long walletId = walletService.requireWallet(email).getId();
         return transactions.findByWalletId(walletId,
-            PageRequest.of(page == 0 ? 0:Math.max(1,page), size, Sort.by(Sort.Direction.DESC, "createdAt", "id"))).map(TransactionResponse::from);
+            PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt", "id"))).map(TransactionResponse::from);
     }
 }
